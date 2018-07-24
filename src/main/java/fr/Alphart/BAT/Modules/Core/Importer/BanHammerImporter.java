@@ -36,7 +36,7 @@ public class BanHammerImporter extends Importer{
                 }
             }
             // If mysql is on and the table weren't found, try to look for a banhammer.db file
-            if(tableFound == false){
+            if(!tableFound){
                 banHammerOnMysql = false;
                 if(new File(BAT.getInstance().getDataFolder(), "banhammer.db").exists()){
                     progressionCallback.onMinorError("The SQLite Driver must be downloaded. The server may freeze during the download.");
@@ -56,7 +56,7 @@ public class BanHammerImporter extends Importer{
                 try(Connection connBH = (banHammerOnMysql) 
                         ? conn
                         : DriverManager.getConnection("jdbc:sqlite:" + BAT.getInstance().getDataFolder().getAbsolutePath() + File.separator
-                                + "banhammer.db");){
+                                + "banhammer.db")){
                     // Count the number of entries (use to show the progression)
                     final ResultSet resCount = connBH.prepareStatement("SELECT  " + (banHammerOnMysql ? "count()" : "COUNT(*)") + " FROM banhammer_bans;"
                         ).executeQuery();
@@ -124,7 +124,7 @@ public class BanHammerImporter extends Importer{
                                 insertBans.setTimestamp(8, ban_end);
                             }
                         }else{
-                            state = (bhState == 0) ? true : false;
+                            state = bhState == 0;
                             insertBans.setTimestamp(8, null);
                         }
                         insertBans.setBoolean(7, state);

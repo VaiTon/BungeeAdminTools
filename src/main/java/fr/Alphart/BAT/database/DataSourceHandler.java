@@ -252,8 +252,8 @@ public class DataSourceHandler {
 					Process backupProcess = Runtime.getRuntime().exec(backupCmd);
 	                final StreamPumper errorPumper = new StreamPumper(backupProcess.getErrorStream());
 	                errorPumper.pump();
-	                new StreamPumper(backupProcess.getInputStream()).pump();;
-					int exitValue = backupProcess.waitFor();
+	                new StreamPumper(backupProcess.getInputStream()).pump();
+                    int exitValue = backupProcess.waitFor();
 					if(exitValue == 0){
 						final String[] splittedPath = backupFile.getAbsolutePath().split((File.separator.equals("\\") ? "\\\\" : File.separator));
 						final String fileName = splittedPath[splittedPath.length - 1];

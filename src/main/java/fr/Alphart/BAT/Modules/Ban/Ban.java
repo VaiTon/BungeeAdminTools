@@ -191,10 +191,7 @@ public class Ban implements IModule, Listener {
 	 */
 	public boolean isBan(final ProxiedPlayer player, final String server) {
 		final String ip = Core.getPlayerIP(player.getName());
-		if (isBan(player.getName(), server) || isBan(ip, server)) {
-			return true;
-		}
-		return false;
+		return isBan(player.getName(), server) || isBan(ip, server);
 	}
 
 	/**
@@ -517,7 +514,7 @@ public class Ban implements IModule, Listener {
 					reason = NO_REASON;
 				}
 				final String staff = resultSet.getString("ban_staff");
-				final boolean active = (resultSet.getBoolean("ban_state") ? true : false);
+				final boolean active = (resultSet.getBoolean("ban_state"));
 				String unbanReason = resultSet.getString("ban_unbanreason");
 				if(unbanReason == null){
 					unbanReason = NO_REASON;
@@ -575,7 +572,7 @@ public class Ban implements IModule, Listener {
 				if(entity == null){
 					entity = "UUID:" + resultSet.getString("UUID");
 				}
-				final boolean active = (resultSet.getBoolean("ban_state") ? true : false);
+				final boolean active = (resultSet.getBoolean("ban_state"));
 				String unbanReason = resultSet.getString("ban_unbanreason");
 				if(unbanReason == null){
 					unbanReason = NO_REASON;
@@ -624,7 +621,7 @@ public class Ban implements IModule, Listener {
               if(entity == null){
                   entity = "UUID:" + resultSet.getString("UUID");
               }
-              final boolean active = (resultSet.getBoolean("ban_state") ? true : false);
+              final boolean active = (resultSet.getBoolean("ban_state"));
               String unbanReason = resultSet.getString("ban_unbanreason");
               if(unbanReason == null){
                   unbanReason = NO_REASON;
@@ -695,7 +692,7 @@ public class Ban implements IModule, Listener {
 	        	else{
 	        		uuid = Utils.getOfflineUUID(ev.getConnection().getName());
 	        	}
-	            statement.setString(1, uuid.toString());
+	            statement.setString(1, uuid);
 	        	
 	            resultSet = statement.executeQuery();
 	            if (resultSet.next()){

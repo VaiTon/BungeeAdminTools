@@ -215,7 +215,7 @@ public class Metrics {
                                                     graph.onOptOut();
                                                 }
                                                 temp.cancel();
-                                                ; // interrupting ourselves
+                                                // interrupting ourselves
                                                 return;
                                             }
                                         }
@@ -580,7 +580,7 @@ public class Metrics {
             default:
                 if (chr < ' ') {
                     String t = "000" + Integer.toHexString(chr);
-                    builder.append("\\u" + t.substring(t.length() - 4));
+                    builder.append("\\u").append(t.substring(t.length() - 4));
                 } else {
                     builder.append(chr);
                 }

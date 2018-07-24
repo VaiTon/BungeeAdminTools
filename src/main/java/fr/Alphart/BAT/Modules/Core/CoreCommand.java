@@ -143,9 +143,7 @@ public class CoreCommand extends BATCommand{
 			if (cmd != null) {
 				// Reorganize args (remove subcommand)
 				final String[] cleanArgs = new String[args.length - 1];
-				for (int i = 1; i < args.length; i++) {
-					cleanArgs[i - 1] = args[i];
-				}
+				System.arraycopy(args, 1, cleanArgs, 0, args.length - 1);
 				
 				if (cmd.getBATPermission().isEmpty() || sender.hasPermission(cmd.getBATPermission()) || sender.hasPermission("bat.admin")) {
 					cmd.execute(sender, cleanArgs);

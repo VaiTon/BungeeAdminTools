@@ -275,10 +275,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	 * @return true if the sender is a player otherwise false
 	 */
 	public boolean isPlayer(final CommandSender sender) {
-		if (sender instanceof ProxiedPlayer) {
-			return true;
-		}
-		return false;
+		return sender instanceof ProxiedPlayer;
 	}
 
 	public void mustConfirmCommand(final CommandSender sender, final String command, final String message) {

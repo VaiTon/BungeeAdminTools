@@ -24,7 +24,7 @@ public class I18n {
 		@Override
 		public String put(final String key, final String value) {
 			return super.put(key, ChatColor.translateAlternateColorCodes('&', value));
-		};
+		}
 	};
 	private ResourceBundle enBundle;
 	private ResourceBundle localeBundle;

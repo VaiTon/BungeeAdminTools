@@ -184,9 +184,9 @@ public class BAT extends Plugin {
 			u = driverPath.toURI().toURL();
 			systemClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
 			sysclass = URLClassLoader.class;
-			final Method method = sysclass.getDeclaredMethod("addURL", new Class[] { URL.class });
+			final Method method = sysclass.getDeclaredMethod("addURL", URL.class);
 			method.setAccessible(true);
-			method.invoke(systemClassLoader, new Object[] { u });
+			method.invoke(systemClassLoader, u);
 
 			Class.forName("org.sqlite.JDBC");
 			return true;
