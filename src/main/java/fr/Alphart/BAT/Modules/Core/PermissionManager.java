@@ -8,9 +8,9 @@ import fr.Alphart.BAT.Modules.IModule;
 public class PermissionManager {
 	private static final String permPrefix = "bat.";
 
-	public static enum Action {
+	public enum Action {
 		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), banBroadcast(
-				"ban.broadcast"),
+				"ban.broadcast"), banList("banlist"),
 
 		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
 				"unmuteip"), MUTE_BROADCAST("mute.broadcast"),

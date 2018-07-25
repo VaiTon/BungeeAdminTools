@@ -52,6 +52,6 @@ public class CommentEntry {
 	
 	public enum Type{
 		NOTE,
-		WARNING;
-	}
+		WARNING
+    }
 }

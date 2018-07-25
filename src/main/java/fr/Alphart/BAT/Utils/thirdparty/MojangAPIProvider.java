@@ -1,4 +1,4 @@
-package fr.Alphart.BAT.Utils;
+package fr.Alphart.BAT.Utils.thirdparty;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-
-import net.md_5.bungee.api.ProxyServer;
 
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -60,7 +58,7 @@ public class MojangAPIProvider {
    * @throws RuntimeException | if any error is met or if the server is offline mode
    */
   public static List<String> getPlayerNameHistory(final String pName) throws RuntimeException{
-      if(!ProxyServer.getInstance().getConfig().isOnlineMode()){
+      if(!Core.isOnlineMode()){
           throw new RuntimeException("Can't get player name history from an offline server !");
       }
       // Fetch player's name history from Mojang servers
@@ -69,14 +67,14 @@ public class MojangAPIProvider {
           final URL mojangURL = new URL("https://api.mojang.com/user/profiles/" + Core.getUUID(pName) + "/names");
           final URLConnection conn = mojangURL.openConnection();
           reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-          String content = "";
+          StringBuilder content = new StringBuilder();
           String line;
           while((line = reader.readLine()) != null){
-              content += line;
+              content.append(line);
           }
           final List<String> names = Lists.newArrayList();
           for(final Map<String, Object> entry : 
-                  (Set<Map<String, Object>>) gson.fromJson(content, new TypeToken<Set<Map<String, Object>>>() {}.getType())){
+                  (Set<Map<String, Object>>) gson.fromJson(content.toString(), new TypeToken<Set<Map<String, Object>>>() {}.getType())){
               names.add((String)entry.get("name"));
           }
           return names;

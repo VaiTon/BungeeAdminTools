@@ -14,8 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.mysql.jdbc.MysqlDataTruncation;
+
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Modules.Core.Importer.Importer.ImportStatus;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
@@ -35,7 +36,7 @@ public class SQLiteMigrater extends Importer{
         
         Connection mysqlConn;
         try (Connection sqliteConn = DriverManager.getConnection("jdbc:sqlite:" + BAT.getInstance().getDataFolder().getAbsolutePath() 
-                + File.separator + "bat_database.db");){
+                + File.separator + "bat_database.db")){
             mysqlConn = BAT.getConnection();
             // Pattern : TableName, Entry<readInstruction, writeInstruction> 
             final Map<String, Entry<String, String>> moduleImportQueries = new HashMap<>();
@@ -92,8 +93,7 @@ public class SQLiteMigrater extends Importer{
                         int columnCount = res.getMetaData().getColumnCount();
                         while (res.next()) {
                             // If there is an id, we will ignore it (start from columnIndex 2)
-                            boolean ignoreFirstColumn = (moduleImportQueries.get(table).getValue().contains("NULL"))
-                                    ? true : false;
+                            boolean ignoreFirstColumn = moduleImportQueries.get(table).getValue().contains("NULL");
                             // SOme parameters error "No value specified for parameter 1" need to find the good formula to delimite the start and the end
                             for(i=(ignoreFirstColumn) ? 2 : 1; i < (columnCount + 1); i++){
                                 Object obj = res.getObject(i);
@@ -105,10 +105,13 @@ public class SQLiteMigrater extends Importer{
                             try{
                                 insertStatement.execute();
                             }catch(final SQLException exception){
-                                // If that's an duplicated entry error, we don't care we continue the import ...
-                                if(exception.getErrorCode() != 1062){
-                                    throw exception;
+                                if(exception.getErrorCode() == 1062 || exception instanceof MysqlDataTruncation){
+                                  progressionCallback.onMinorError("A minor exception has been met : " + exception.getMessage()
+                                      + " ---- The import will continue.");
+                                }else{
+                                  throw exception;
                                 }
+                                // If that's an duplicated entry error, we don't care we continue the import ...
                             }
                             uncomittedEntries++;
                             insertStatement.clearParameters();

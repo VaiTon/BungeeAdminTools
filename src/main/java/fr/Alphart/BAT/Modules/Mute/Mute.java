@@ -603,9 +603,7 @@ public class Mute implements IModule, Listener {
 			        return super.contains(o);
 			    }
 			};
-			for(final String server : servers){
-			    servers.add(server);
-			}
+			this.servers.addAll(servers);
 		}
 
 		public void setGlobal() {
@@ -635,10 +633,7 @@ public class Mute implements IModule, Listener {
 				return true;
 			}else if( (ANY_SERVER.equals(server) && !servers.isEmpty()) ){
 				return true;
-			}else if(servers.contains(server)){
-				return true;
-			}
-			return false;
+			}else return servers.contains(server);
 		}
 	
 		public BaseComponent[] getMuteMessage(final Mute module){

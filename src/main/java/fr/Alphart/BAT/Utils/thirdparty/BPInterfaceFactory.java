@@ -1,4 +1,4 @@
-package fr.Alphart.BAT.Utils;
+package fr.Alphart.BAT.Utils.thirdparty;
 
 import java.util.Collection;
 
@@ -21,7 +21,7 @@ public class BPInterfaceFactory{
     }
     
     public interface PermissionProvider{
-        public Collection<String> getPermissions(final CommandSender sender);
+        Collection<String> getPermissions(final CommandSender sender);
     }
     
     @RequiredArgsConstructor

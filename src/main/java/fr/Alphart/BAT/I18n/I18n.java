@@ -24,7 +24,7 @@ public class I18n {
 		@Override
 		public String put(final String key, final String value) {
 			return super.put(key, ChatColor.translateAlternateColorCodes('&', value));
-		};
+		}
 	};
 	private ResourceBundle enBundle;
 	private ResourceBundle localeBundle;
@@ -136,10 +136,9 @@ public class I18n {
 	}
 
 	/**
-	 * Format a message with given object. Parse color
+	 * Return message by its key
 	 * 
 	 * @param message
-	 * @param formatObject
 	 * @return String
 	 */
 	public static String _(final String message) {

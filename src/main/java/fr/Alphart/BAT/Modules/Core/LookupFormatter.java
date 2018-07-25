@@ -30,14 +30,16 @@ import fr.Alphart.BAT.Modules.Comment.CommentEntry.Type;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.FormatUtils;
-import fr.Alphart.BAT.Utils.MojangAPIProvider;
 import fr.Alphart.BAT.Utils.Utils;
+import fr.Alphart.BAT.Utils.thirdparty.MojangAPIProvider;
 
 public class LookupFormatter {
     private ModulesManager modules;
     private static final int entriesPerPage = 15;
     private final String lookupHeader;
     private final String lookupFooter;
+    private final String currentPunishmentHover= "{effect=\"hover\" text=\"{server}\" onHoverText=\"&eStaff: &a{staff}, &eReason: &a{reason},"
+        + "{newlinehover} &eBegin: &a{begin}\"}";
     
     public LookupFormatter(){
         lookupHeader = _("perModuleLookupHeader");
@@ -71,25 +73,33 @@ public class LookupFormatter {
         for (final BanEntry banEntry : pDetails.getBans()) {
             if (banEntry.isActive()) {
                 isBan = true;
-                banServers.add(banEntry.getServer());
+                banServers.add(currentPunishmentHover.replace("{server}", banEntry.getServer())
+                    .replace("{staff}", banEntry.getStaff()).replace("{reason}", banEntry.getReason())
+                    .replace("{begin}", Core.defaultDF.format(banEntry.getBeginDate())));
             }
         }
         for (final BanEntry banEntry : ipDetails.getBans()) {
             if (banEntry.isActive()) {
                 isBanIP = true;
-                banIPServers.add(banEntry.getServer());
+                banIPServers.add(currentPunishmentHover.replace("{server}", banEntry.getServer())
+                    .replace("{staff}", banEntry.getStaff()).replace("{reason}", banEntry.getReason())
+                    .replace("{begin}", Core.defaultDF.format(banEntry.getBeginDate())));
             }
         }
         for (final MuteEntry muteEntry : pDetails.getMutes()) {
             if (muteEntry.isActive()) {
                 isMute = true;
-                muteServers.add(muteEntry.getServer());
+                muteServers.add(currentPunishmentHover.replace("{server}", muteEntry.getServer())
+                    .replace("{staff}", muteEntry.getStaff()).replace("{reason}", muteEntry.getReason())
+                    .replace("{begin}", Core.defaultDF.format(muteEntry.getBeginDate())));
             }
         }
         for (final MuteEntry muteEntry : ipDetails.getMutes()) {
             if (muteEntry.isActive()) {
                 isMuteIP = true;
-                muteIPServers.add(muteEntry.getServer());
+                muteIPServers.add(currentPunishmentHover.replace("{server}", muteEntry.getServer())
+                    .replace("{staff}", muteEntry.getStaff()).replace("{reason}", muteEntry.getReason())
+                    .replace("{begin}", Core.defaultDF.format(muteEntry.getBeginDate())));
             }
         }
         bansNumber = pDetails.getBans().size() + ipDetails.getBans().size();
@@ -97,7 +107,7 @@ public class LookupFormatter {
         kicksNumber = pDetails.getKicks().size();
         
         // Load the lookup pattern
-        final String lookupPattern = _("playerLookup");
+        String lookupPattern = _("playerLookup");
         
         // Initialize all the strings to prepare the big replace
         String connection_state;
@@ -145,7 +155,7 @@ public class LookupFormatter {
                 
         String name_history_list;
         // Create a function for that or something better than a big chunk of code inside the lookup
-        if(ProxyServer.getInstance().getConfig().isOnlineMode()){
+        if(Core.isOnlineMode()){
             try{
                 name_history_list = Joiner.on("&e, &a").join(MojangAPIProvider.getPlayerNameHistory(pName));
             }catch(final RuntimeException e){
@@ -159,7 +169,7 @@ public class LookupFormatter {
         }
         
         int commentsNumber = pDetails.getComments().size();
-        String last_comments = "";
+        StringBuilder last_comments = new StringBuilder();
         // We need to parse the number of last comments from the lookup pattern
         final Pattern lastCommentsPattern = Pattern.compile("(?:.|\n)*?\\{last_comments:(\\d*)\\}(?:.|\n)*?");
         final Matcher matcher = lastCommentsPattern.matcher(lookupPattern);
@@ -173,19 +183,28 @@ public class LookupFormatter {
             }
             int i = 0;
             for(final CommentEntry comm : pDetails.getComments()){
-                last_comments += _("commentRow", new String[]{String.valueOf(comm.getID()), 
+                last_comments.append(_("commentRow", new String[]{String.valueOf(comm.getID()),
                         (comm.getType() == Type.NOTE) ? "&eComment" : "&cWarning", comm.getContent(),
-                        comm.getFormattedDate(), comm.getAuthor()});
+                        comm.getFormattedDate(), comm.getAuthor()}));
                 i++;
                 if(i == 3){
                     break;
                 }
             }
-            if(last_comments.isEmpty()){
-                last_comments = _("none");
+            if(last_comments.length() == 0){
+                last_comments = new StringBuilder(_("none"));
             }
         }catch(final NumberFormatException e){
-            last_comments = "Unable to parse the number of last_comments";
+            last_comments = new StringBuilder("Unable to parse the number of last_comments");
+        }
+        
+        final String ip_users;
+        if("0.0.0.0".equals(pDetails.getLastIP())){
+          ip_users = _("unknownIp");
+        }else{
+          ip_users = !ipDetails.getUsers().isEmpty()
+              ? Joiner.on(joinChar).join(ipDetails.getUsers())
+              : _("none");
         }
         
         final List<BaseComponent[]> finalMessage = FormatUtils.formatNewLine(ChatColor.translateAlternateColorCodes('&',
@@ -196,8 +215,9 @@ public class LookupFormatter {
                 .replace("{first_login}", first_login).replace("{last_login}", last_login).replace("{last_ip}", last_ip)
                 .replace("{bans_number}", String.valueOf(bansNumber)).replace("{mutes_number}", String.valueOf(mutesNumber))
                 .replace("{kicks_number}", String.valueOf(kicksNumber)).replace("{comments_number}", String.valueOf(commentsNumber))
-                .replace("{name_history_list}", name_history_list).replaceAll("\\{last_comments:\\d\\}", last_comments)
+                .replace("{name_history_list}", name_history_list).replaceAll("\\{last_comments:\\d\\}", last_comments.toString())
                 .replace("{player}", pName).replace("{uuid}", Core.getUUID(pName))
+                .replace("{ip_users}", ip_users)
                 // '¤' is used as a space character, so we replace it with space and display correctly the escaped one
                 .replace("¤", " ").replace("\\¤", "¤")
                 ));
