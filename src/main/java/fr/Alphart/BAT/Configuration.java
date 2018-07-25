@@ -38,6 +38,8 @@ public class Configuration extends YamlConfig {
 	@Comment("Make the date more readable."
 			+ "If the date correspond to today, tmw or yda, it will replace the date by the corresponding word")
 	private boolean litteralDate = true;
+	@Comment("Send banned player to a specified server through BungeeCord. Leave 'none' to turn the feature off")
+	private String bannedServer = "none";
 	@Comment("Enable BETA (experimental) Redis support, requires RedisBungee")
 	private boolean redisSupport = false;
 	@Comment("For special setups, leave to false by default")
