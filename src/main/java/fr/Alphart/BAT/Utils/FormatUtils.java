@@ -46,7 +46,7 @@ public class FormatUtils {
 			seconds -= 2678400;
 		}
 		if (months > 0) {
-			item.add(months + I18n._("months"));
+			item.add(months + I18n.getFormatted("months"));
 		}
 
 		int days = 0;
@@ -55,7 +55,7 @@ public class FormatUtils {
 			seconds -= 86400;
 		}
 		if (days > 0) {
-			item.add(days + I18n._("days"));
+			item.add(days + I18n.getFormatted("days"));
 		}
 
 		int hours = 0;
@@ -64,7 +64,7 @@ public class FormatUtils {
 			seconds -= 3600;
 		}
 		if (hours > 0) {
-			item.add(hours + I18n._("hours"));
+			item.add(hours + I18n.getFormatted("hours"));
 		}
 
 		int mins = 0;
@@ -73,11 +73,11 @@ public class FormatUtils {
 			seconds -= 60;
 		}
 		if (mins > 0) {
-			item.add(mins + I18n._("minutes"));
+			item.add(mins + I18n.getFormatted("minutes"));
 		}
 
 		if (seconds > 0) {
-			item.add(seconds + I18n._("seconds"));
+			item.add(seconds + I18n.getFormatted("seconds"));
 		}
 
 		return Joiner.on(", ").join(item);
@@ -108,7 +108,7 @@ public class FormatUtils {
 			sender.sendMessage(tx);
 		}
 		if (msg.size() == 1) {
-			sender.sendMessage(BAT.__("&c No command corresponding to your permission has been found"));
+			sender.sendMessage(BAT.fromPlainText("&c No command corresponding to your permission has been found"));
 		}
 	}
 

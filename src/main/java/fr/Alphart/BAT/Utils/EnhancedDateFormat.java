@@ -20,12 +20,12 @@ public class EnhancedDateFormat{
 	 */
 	public EnhancedDateFormat(final boolean litteralDate){
 		this.litteralDate = litteralDate;
-		final String at = I18n._("at");
+		final String at = I18n.getFormatted("at");
 		defaultDF = new SimpleDateFormat("dd-MM-yyyy '" + at + "' HH:mm");
 		if(litteralDate){
-			tdaDF = new SimpleDateFormat("'" + I18n._("today").replace("'", "''") + " " + at + "' HH:mm");
-			tmwDF = new SimpleDateFormat("'" + I18n._("tomorrow").replace("'", "''") + " " + at + "' HH:mm");
-			ydaDF = new SimpleDateFormat("'" + I18n._("yesterday").replace("'", "''") + " " + at + "' HH:mm");
+			tdaDF = new SimpleDateFormat("'" + I18n.getFormatted("today").replace("'", "''") + " " + at + "' HH:mm");
+			tmwDF = new SimpleDateFormat("'" + I18n.getFormatted("tomorrow").replace("'", "''") + " " + at + "' HH:mm");
+			ydaDF = new SimpleDateFormat("'" + I18n.getFormatted("yesterday").replace("'", "''") + " " + at + "' HH:mm");
 		}
 	}
 	

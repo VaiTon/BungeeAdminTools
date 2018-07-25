@@ -1,7 +1,7 @@
 package fr.Alphart.BAT.Modules;
 
-import static fr.Alphart.BAT.I18n.I18n._;
-import static fr.Alphart.BAT.I18n.I18n.__;
+import static fr.Alphart.BAT.I18n.I18n.getFormatted;
+import static fr.Alphart.BAT.I18n.I18n.getFormattedPrefixed;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,6 +14,7 @@ import java.util.MissingResourceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.Alphart.BAT.I18n.I18n;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -111,23 +112,23 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 			if (exception.getMessage() == null) {
 				if(coreCommand){
 					// Just need to add the /bat if it's a core command
-					sender.sendMessage(__("invalidArgsUsage", new String[] { "&e/bat " + getFormatUsage() }));
+					sender.sendMessage(I18n.getFormattedPrefixed("invalidArgsUsage", new String[] { "&e/bat " + getFormatUsage() }));
 				}else{
-					sender.sendMessage(__("invalidArgsUsage", new String[] { "&e/" + getFormatUsage() }));
+					sender.sendMessage(I18n.getFormattedPrefixed("invalidArgsUsage", new String[] { "&e/" + getFormatUsage() }));
 				}
-			} else if (_("noPerm").equals(exception.getMessage())) {
-				sender.sendMessage(__("noPerm"));
+			} else if (I18n.getFormatted("noPerm").equals(exception.getMessage())) {
+				sender.sendMessage(getFormattedPrefixed("noPerm"));
 			} else {
-				sender.sendMessage(__("invalidArgs", new String[] { exception.getMessage() }));
+				sender.sendMessage(I18n.getFormattedPrefixed("invalidArgs", new String[] { exception.getMessage() }));
 			}
 		}
 		else if(exception instanceof UUIDNotFoundException){
-			sender.sendMessage(__("invalidArgs", new String[] { _("cannotGetUUID", new String[] { ((UUIDNotFoundException)exception).getInvolvedPlayer() }) }));
+			sender.sendMessage(I18n.getFormattedPrefixed("invalidArgs", new String[] { I18n.getFormatted("cannotGetUUID", new String[] { ((UUIDNotFoundException)exception).getInvolvedPlayer() }) }));
 		}
 		else if(exception instanceof MissingResourceException){
-			sender.sendMessage(BAT.__("&cAn error occured with the translation. Key involved : &a" + ((MissingResourceException)exception).getKey()));
+			sender.sendMessage(BAT.fromPlainText("&cAn error occured with the translation. Key involved : &a" + ((MissingResourceException)exception).getKey()));
 		}else{
-			sender.sendMessage(BAT.__("A command errror happens ! Please check the console."));
+			sender.sendMessage(BAT.fromPlainText("A command errror happens ! Please check the console."));
 			BAT.getInstance().getLogger().severe("A command errror happens ! Please report this stacktrace :");
 			exception.printStackTrace();
 		}
@@ -169,7 +170,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 				}
 			}
 			if(!hasPerm){
-				sender.sendMessage(__("noPerm"));
+				sender.sendMessage(getFormattedPrefixed("noPerm"));
 				return;
 			}
 		}
@@ -216,7 +217,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	public Iterable<String> onTabComplete(final CommandSender sender, final String[] args) {
 		final List<String> result = new ArrayList<String>();
 		if (args.length == 0) {
-			sender.sendMessage(BAT.__("Add the first letter to autocomplete"));
+			sender.sendMessage(BAT.fromPlainText("Add the first letter to autocomplete"));
 			return result;
 		}
 		final String playerToCheck = args[args.length - 1];
@@ -283,9 +284,9 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		        ? "confirm" : "bat confirm";
 		if (!CommandQueue.isExecutingQueueCommand(sender)) {
 			if ("".equals(message)) {
-				sender.sendMessage(__("mustConfirm", new String[] { "", cmdToConfirm }));
+				sender.sendMessage(I18n.getFormattedPrefixed("mustConfirm", new String[] { "", cmdToConfirm }));
 			} else {
-				sender.sendMessage(__("mustConfirm", new String[] { "&e"+message, cmdToConfirm }));
+				sender.sendMessage(I18n.getFormattedPrefixed("mustConfirm", new String[] { "&e"+message, cmdToConfirm }));
 			}
 			CommandQueue.queueCommand(sender, command);
 		}

@@ -97,6 +97,12 @@ public class I18n {
 		return I18nHolder.instance;
 	}
 
+	/**
+	 * Get message from language file by its key.
+	 * @param key
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
 	public static String getString(final String key) throws IllegalArgumentException {
 		String message;
 		try{
@@ -120,63 +126,63 @@ public class I18n {
 	}
 
 	/**
-	 * Format a message with given object. Parse color
+	 * Get message from language file by its key. Parse color and format.
 	 * 
-	 * @param message
+	 * @param key
 	 * @param formatObject
 	 * @return String
 	 */
-	public static String _(final String message, final String[] formatObject) {
+	public static String getFormatted(final String key, final String[] formatObject) {
 		try {
-			final MessageFormat mf = new MessageFormat(getString(message));
-			return ChatColor.translateAlternateColorCodes('&', mf.format(preprocessArgs(formatObject)));
+			final MessageFormat mf = new MessageFormat(getString(key));
+			return ChatColor.translateAlternateColorCodes('&', mf.format(preProcessArgs(formatObject)));
 		} catch (final IllegalArgumentException e) {
 			return "";
 		}
 	}
 
 	/**
-	 * Return message by its key
+	 * Get message from language file by its key. Parse color.
 	 * 
-	 * @param message
+	 * @param key
 	 * @return String
 	 */
-	public static String _(final String message) {
+	public static String getFormatted(final String key) {
 		try {
 			// Replace the quote as the message formatter does
-			return ChatColor.translateAlternateColorCodes('&', getString(message).replace("''", "'"));
+			return ChatColor.translateAlternateColorCodes('&', getString(key).replace("''", "'"));
 		} catch (final IllegalArgumentException e) {
 			return "";
 		}
 	}
 
 	/**
-	 * Same as {@link #_(String, String[])} except it adds a prefix
+	 * Same as {@link #getFormatted(String, String[])} except it adds a prefix
 	 * 
-	 * @param message
+	 * @param key
 	 * @param formatObject
 	 * @return
 	 */
-	public static BaseComponent[] __(final String message, final String[] formatObject) {
+	public static BaseComponent[] getFormattedPrefixed(final String key, final String[] formatObject) {
 		try {
-			final MessageFormat mf = new MessageFormat(getString(message));
-			return BAT.__(mf.format(preprocessArgs(formatObject)));
+			final MessageFormat mf = new MessageFormat(getString(key));
+			return BAT.fromPlainText(mf.format(preProcessArgs(formatObject)));
 		} catch (final IllegalArgumentException e) {
 			return TextComponent.fromLegacyText("");
 		}
 	}
 
 	/**
-	 * Same as {@link #_(String, String[])} except it adds a prefix
+	 * Same as {@link #getFormatted(String, String[])} except it adds a prefix
 	 * 
-	 * @param message
+	 * @param key
 	 * @param formatObject
 	 * @return
 	 */
-	public static BaseComponent[] __(final String message) {
+	public static BaseComponent[] getFormattedPrefixed(final String key) {
 		try {
 			// Replace the quote as the message formatter does
-			return BAT.__(getString(message).replace("''", "'"));
+			return BAT.fromPlainText(getString(key).replace("''", "'"));
 		} catch (final IllegalArgumentException e) {
 			return TextComponent.fromLegacyText("");
 		}
@@ -189,7 +195,7 @@ public class I18n {
 	 * @param args
 	 * @return
 	 */
-	public static String[] preprocessArgs(final String[] formatArgs) {
+	public static String[] preProcessArgs(final String[] formatArgs) {
 		for (int i = 0; i < formatArgs.length; i++) {
 			if (argsReplacer.containsKey(formatArgs[i])) {
 				formatArgs[i] = argsReplacer.get(formatArgs[i]);

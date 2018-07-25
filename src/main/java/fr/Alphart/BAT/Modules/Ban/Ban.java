@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.IModule;
@@ -30,7 +31,7 @@ import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
-import static fr.Alphart.BAT.I18n.I18n._;
+import static fr.Alphart.BAT.I18n.I18n.getFormatted;
 
 public class Ban implements IModule, Listener {
 	private final String name = "ban";
@@ -180,11 +181,11 @@ public class Ban implements IModule, Listener {
 			DataSourceHandler.close(statement, resultSet);
 		}
 		if(expiration != null){
-			return TextComponent.fromLegacyText(_("isBannedTemp", 
+			return TextComponent.fromLegacyText(I18n.getFormatted("isBannedTemp",
 					new String[]{ reason, (expiration.getTime() < System.currentTimeMillis()) ? "a few moments" : FormatUtils.getDuration(expiration.getTime()),
 							Core.defaultDF.format(begin), staff }));
 		}else{
-			return TextComponent.fromLegacyText(_("isBanned", new String[]{ reason, Core.defaultDF.format(begin), staff }));
+			return TextComponent.fromLegacyText(I18n.getFormatted("isBanned", new String[]{ reason, Core.defaultDF.format(begin), staff }));
 		}
 	}
 	
@@ -282,7 +283,7 @@ public class Ban implements IModule, Listener {
 
 				for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 					if (Utils.getPlayerIP(player).equals(ip) && (GLOBAL_SERVER.equals(server) || server.equalsIgnoreCase(player.getServer().getInfo().getName())) ) {
-						BAT.kick(player, _("wasBannedNotif", new String[] { reason }));
+						BAT.kick(player, I18n.getFormatted("wasBannedNotif", new String[] { reason }));
 					}
 				}
 				
@@ -294,16 +295,16 @@ public class Ban implements IModule, Listener {
 				    	      continue;
 				    	    }
 				    	    if (ip.equals(RedisBungee.getApi().getPlayerIp(pUUID)) && (GLOBAL_SERVER.equals(server) || server.equalsIgnoreCase(RedisBungee.getApi().getServerFor(pUUID).getName()))) {
-				    	      BAT.getInstance().getRedis().sendGKickPlayer(pUUID, _("wasBannedNotif", new String[] { reason }));
+				    	      BAT.getInstance().getRedis().sendGKickPlayer(pUUID, I18n.getFormatted("wasBannedNotif", new String[] { reason }));
 				    	    }
 				    	}
 				}
 
 				if (expirationTimestamp > 0) {
-					return _("banTempBroadcast", new String[] { ip, FormatUtils.getDuration(expirationTimestamp),
+					return I18n.getFormatted("banTempBroadcast", new String[] { ip, FormatUtils.getDuration(expirationTimestamp),
 							staff, server, reason });
 				} else {
-					return _("banBroadcast", new String[] { ip, staff, server, reason });
+					return I18n.getFormatted("banBroadcast", new String[] { ip, staff, server, reason });
 				}
 			}
 
@@ -325,20 +326,20 @@ public class Ban implements IModule, Listener {
 				// banned
 				if (player != null
 						&& (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server))) {
-					BAT.kick(player, _("wasBannedNotif", new String[] { reason }));
+					BAT.kick(player, I18n.getFormatted("wasBannedNotif", new String[] { reason }));
 				} else if (BAT.getInstance().getRedis().isRedisEnabled()) {
 				    	UUID pUUID = RedisBungee.getApi().getUuidFromName(pName);
 				    	if (RedisBungee.getApi().isPlayerOnline(pUUID)
 				    		&& ((server.equals(GLOBAL_SERVER) || RedisBungee.getApi().getServerFor(pUUID).getName().equalsIgnoreCase(server)))) {
-				    	    	BAT.getInstance().getRedis().sendGKickPlayer(pUUID, _("wasBannedNotif", new String[] { reason }));
+				    	    	BAT.getInstance().getRedis().sendGKickPlayer(pUUID, I18n.getFormatted("wasBannedNotif", new String[] { reason }));
 				    	}
 				}
 
 				if (expirationTimestamp > 0) {
-					return _("banTempBroadcast", new String[] { pName, FormatUtils.getDuration(expirationTimestamp),
+					return I18n.getFormatted("banTempBroadcast", new String[] { pName, FormatUtils.getDuration(expirationTimestamp),
 							staff, server, reason });
 				} else {
-					return _("banBroadcast", new String[] { pName, staff, server, reason });
+					return I18n.getFormatted("banBroadcast", new String[] { pName, staff, server, reason });
 				}
 			}
 		} catch (final SQLException e) {
@@ -361,7 +362,7 @@ public class Ban implements IModule, Listener {
 	public String banIP(final ProxiedPlayer player, final String server, final String staff,
 			final long expirationTimestamp, final String reason) {
 		ban(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
-		return _("banBroadcast", new String[] { player.getName() + "'s IP", staff, server, reason });
+		return I18n.getFormatted("banBroadcast", new String[] { player.getName() + "'s IP", staff, server, reason });
 	}
 	
 	
@@ -369,7 +370,7 @@ public class Ban implements IModule, Listener {
 			final long expirationTimestamp, final String reason) {
 	    	if (BAT.getInstance().getRedis().isRedisEnabled() && RedisBungee.getApi().isPlayerOnline(pUUID)) {
 	    	    	ban(RedisBungee.getApi().getPlayerIp(pUUID).getHostAddress(), server, staff, expirationTimestamp, reason);
-			return _("banBroadcast", new String[] { RedisBungee.getApi().getNameFromUuid(pUUID) + "'s IP", staff, server, reason });
+			return I18n.getFormatted("banBroadcast", new String[] { RedisBungee.getApi().getNameFromUuid(pUUID) + "'s IP", staff, server, reason });
 	    	} else {
 	    	    	return null;
 	    	}
@@ -411,7 +412,7 @@ public class Ban implements IModule, Listener {
 				}
 				statement.executeUpdate();
 
-				return _("unbanBroadcast", new String[] { ip, staff, server, reason });
+				return I18n.getFormatted("unbanBroadcast", new String[] { ip, staff, server, reason });
 			}
 
 			// Otherwise it's a player
@@ -435,7 +436,7 @@ public class Ban implements IModule, Listener {
 				}
 				statement.executeUpdate();
 
-				return _("unbanBroadcast", new String[] { pName, staff, server, reason });
+				return I18n.getFormatted("unbanBroadcast", new String[] { pName, staff, server, reason });
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -463,7 +464,7 @@ public class Ban implements IModule, Listener {
 			return unBan(entity, server, staff, reason);
 		} else {
 			unBan(Core.getPlayerIP(entity), server, staff, reason);
-			return _("unbanBroadcast", new String[] { entity + "'s IP", staff, server, reason });
+			return I18n.getFormatted("unbanBroadcast", new String[] { entity + "'s IP", staff, server, reason });
 		}
 	}
 

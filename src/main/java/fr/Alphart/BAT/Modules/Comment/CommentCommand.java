@@ -1,8 +1,8 @@
 package fr.Alphart.BAT.Modules.Comment;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static fr.Alphart.BAT.I18n.I18n._;
-import static fr.Alphart.BAT.I18n.I18n.__;
+import static fr.Alphart.BAT.I18n.I18n.getFormatted;
+import static fr.Alphart.BAT.I18n.I18n.getFormattedPrefixed;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -10,6 +10,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import com.google.common.base.Joiner;
 
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
@@ -53,13 +54,13 @@ public class CommentCommand extends CommandHandler{
 			}
 			if(!confirmedCmd && Core.getPlayerIP(args[0]).equals("0.0.0.0")){
 				mustConfirmCommand(sender, "bat " + getName() + " " + Joiner.on(' ').join(args),
-						_("operationUnknownPlayer", new String[] {args[0]}));
+						I18n.getFormatted("operationUnknownPlayer", new String[] {args[0]}));
 				return;
 			}
 			
-			checkArgument(comment.hasLastcommentCooledDown(args[0]), _("cooldownUnfinished"));
+			checkArgument(comment.hasLastcommentCooledDown(args[0]), I18n.getFormatted("cooldownUnfinished"));
 			comment.insertComment(args[0], Utils.getFinalArg(args, 1), Type.NOTE, sender.getName());
-			sender.sendMessage(__("commentAdded"));
+			sender.sendMessage(getFormattedPrefixed("commentAdded"));
 		}
 	}
 	
@@ -69,7 +70,7 @@ public class CommentCommand extends CommandHandler{
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast) throws IllegalArgumentException {
-			sender.sendMessage(BAT.__(comment.clearComments(args[0], ((args.length == 2) ? Integer.parseInt(args[1]) : -1) )));
+			sender.sendMessage(BAT.fromPlainText(comment.clearComments(args[0], ((args.length == 2) ? Integer.parseInt(args[1]) : -1) )));
 		}
 	}
 	
@@ -85,23 +86,23 @@ public class CommentCommand extends CommandHandler{
 			if(target == null){
 				if(!confirmedCmd && Core.getPlayerIP(args[0]).equals("0.0.0.0")){
 					mustConfirmCommand(sender, getName() + " " + Joiner.on(' ').join(args),
-							_("operationUnknownPlayer", new String[] {args[0]}));
+							I18n.getFormatted("operationUnknownPlayer", new String[] {args[0]}));
 					return;
 				}
 			}
 			
 			if(sender instanceof ProxiedPlayer){
 				checkArgument(PermissionManager.canExecuteAction(Action.WARN , sender, ((ProxiedPlayer)sender).getServer().getInfo().getName()),
-						_("noPerm"));
+						I18n.getFormatted("noPerm"));
 			}
-	          checkArgument(comment.hasLastcommentCooledDown(args[0]), _("cooldownUnfinished"));
+	          checkArgument(comment.hasLastcommentCooledDown(args[0]), I18n.getFormatted("cooldownUnfinished"));
 			comment.insertComment(args[0], reason, Type.WARNING, sender.getName());
 			if(target != null){
-			  target.sendMessage(__("wasWarnedNotif", new String[] {reason}));
+			  target.sendMessage(I18n.getFormattedPrefixed("wasWarnedNotif", new String[] {reason}));
 			}
 			  
 			if(broadcast){
-			    BAT.broadcast(_("warnBroadcast", new String[]{args[0], sender.getName(), reason}), Action.WARN_BROADCAST.getPermission());
+			    BAT.broadcast(I18n.getFormatted("warnBroadcast", new String[]{args[0], sender.getName(), reason}), Action.WARN_BROADCAST.getPermission());
 			}
 			return;
 		}

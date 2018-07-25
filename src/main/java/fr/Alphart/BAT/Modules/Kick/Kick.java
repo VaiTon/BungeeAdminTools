@@ -1,6 +1,6 @@
 package fr.Alphart.BAT.Modules.Kick;
 
-import static fr.Alphart.BAT.I18n.I18n._;
+import static fr.Alphart.BAT.I18n.I18n.getFormatted;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,6 +18,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
@@ -102,7 +103,7 @@ public class Kick implements IModule {
 	public String kick(final ProxiedPlayer player, final String staff, final String reason) {
 		player.connect(ProxyServer.getInstance().getServerInfo(
 				player.getPendingConnection().getListener().getDefaultServer()));
-		player.sendMessage(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
+		player.sendMessage(TextComponent.fromLegacyText(I18n.getFormatted("wasKickedNotif", new String[] { reason })));
 		return kickSQL(Core.getUUID(player.getName()), player.getServer().getInfo().getName(), staff, reason);
 	}
 	public String kickSQL(final String pUUID, final String server, final String staff, final String reason) {
@@ -120,7 +121,7 @@ public class Kick implements IModule {
 			statement.executeUpdate();
 			statement.close();
 
-			return _("kickBroadcast", new String[] { Core.getPlayerName(pUUID), staff, server, reason });
+			return I18n.getFormatted("kickBroadcast", new String[] { Core.getPlayerName(pUUID), staff, server, reason });
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {
@@ -136,7 +137,7 @@ public class Kick implements IModule {
 	 */
 	public String gKick(final ProxiedPlayer player, final String staff, final String reason) {
 		final String message = gKickSQL(Core.getUUID(player.getName()), staff, reason);
-		player.disconnect(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
+		player.disconnect(TextComponent.fromLegacyText(I18n.getFormatted("wasKickedNotif", new String[] { reason })));
 		return message;
 	}
 	public String gKickSQL(final String pUUID, final String staff, final String reason) {
@@ -155,9 +156,9 @@ public class Kick implements IModule {
 			statement.close();
 
 			if (BAT.getInstance().getRedis().isRedisEnabled()) {
-			    	return _("gKickBroadcast", new String[] { RedisBungee.getApi().getNameFromUuid(Core.getUUIDfromString(pUUID)), staff, reason });
+			    	return I18n.getFormatted("gKickBroadcast", new String[] { RedisBungee.getApi().getNameFromUuid(Core.getUUIDfromString(pUUID)), staff, reason });
 			} else {
-				return _("gKickBroadcast", new String[] { Core.getPlayerName(pUUID), staff, reason });
+				return I18n.getFormatted("gKickBroadcast", new String[] { Core.getPlayerName(pUUID), staff, reason });
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);

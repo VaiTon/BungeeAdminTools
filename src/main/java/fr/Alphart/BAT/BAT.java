@@ -201,7 +201,12 @@ public class BAT extends Plugin {
 		return BAT.instance;
 	}
 
-	public static BaseComponent[] __(final String message) {
+	/**
+	 * Converts the old formatting system that used '&' into the new json based system.
+	 * @param message the text to convert
+	 * @return the components needed to print the message to the client
+	 */
+	public static BaseComponent[] fromPlainText(final String message) {
 		return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', prefix + message));
 	}
 
@@ -224,9 +229,9 @@ public class BAT extends Plugin {
 	    final String DISPLAY_IP_BROADCAST_PERM = "bat.broadcast.displayip";
 	    String ipInMessage = Utils.extractIpFromString(message);
 	    boolean containsIp = !ipInMessage.isEmpty();
-	    final BaseComponent[] ipIncludedMsg = __(message);
+	    final BaseComponent[] ipIncludedMsg = fromPlainText(message);
 		final BaseComponent[] ipFreeMsg = containsIp ?
-		    __(message.replace(ipInMessage, "<hiddenIP>")) : ipIncludedMsg;
+		    fromPlainText(message.replace(ipInMessage, "<hiddenIP>")) : ipIncludedMsg;
 		
 		for (final ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
 		    if(p.hasPermission("bat.admin")){
