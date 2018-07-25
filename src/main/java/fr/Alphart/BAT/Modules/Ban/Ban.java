@@ -1,48 +1,45 @@
 package fr.Alphart.BAT.Modules.Ban;
 
-import static fr.Alphart.BAT.I18n.I18n._;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 
-import com.imaginarycode.minecraft.redisbungee.RedisBungee;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
-import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
+import static fr.Alphart.BAT.I18n.I18n._;
+
 public class Ban implements IModule, Listener {
 	private final String name = "ban";
-	private ScheduledTask task;
+    private ScheduledTask tempBanTask;
+    private ScheduledTask clearPendingTask;
 	private BanCommand commandHandler;
 	private final BanConfig config;
+    private ServerInfo banServer;
+    private Set<String> pendingPlayers = new HashSet<String>();
 
 	public Ban(){
 		config = new BanConfig();
@@ -89,9 +86,9 @@ public class Ban implements IModule, Listener {
 		commandHandler = new BanCommand(this);
 		commandHandler.loadCmds();
 
-		// Launch tempban task
+        // Launch tempBanTask
 		final BanExpirationTask banExpirationTask = new BanExpirationTask(this);
-		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), banExpirationTask, 0, 10, TimeUnit.SECONDS);
+        tempBanTask = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), banExpirationTask, 0, 10, TimeUnit.SECONDS);
 
 		// Check if the online players are banned (if the module has been reloaded)
 		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
@@ -110,12 +107,21 @@ public class Ban implements IModule, Listener {
 			}
 		}
 
-		return true;
+        // Set banServer is
+        String serverName = BAT.getInstance().getConfiguration().getBannedServer();
+        banServer = serverName.equals("none") ? null : ProxyServer.getInstance().getServerInfo(serverName);
+        if (banServer != null) {
+            clearPendingTask = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), () -> {
+                pendingPlayers.clear();
+            }, 0, 30, TimeUnit.SECONDS);
+        }
+
+        return true;
 	}
 
 	@Override
 	public boolean unload() {
-		task.cancel();
+        tempBanTask.cancel();
 		return true;
 	}
 
@@ -684,14 +690,7 @@ public class Ban implements IModule, Listener {
 	        String uuid = null;
 	        try(Connection conn = BAT.getConnection()){ 
 	        	statement = conn.prepareStatement("SELECT ban_id FROM `BAT_ban` WHERE ban_state = 1 AND UUID = ? AND ban_server = '" + GLOBAL_SERVER + "';");
-	        	// If this is an online mode server, the uuid will be already set
-	        	if(ev.getConnection().getUniqueId() != null  && ProxyServer.getInstance().getConfig().isOnlineMode()){
-	        		uuid = ev.getConnection().getUniqueId().toString().replaceAll( "-", "" );
-	        	}
-	        	// Otherwise it's an offline mode server, so we're gonna generate the UUID using player name (hashing)
-	        	else{
-	        		uuid = Utils.getOfflineUUID(ev.getConnection().getName());
-	        	}
+                uuid = Utils.getUUID(ev.getConnection());
 	            statement.setString(1, uuid);
 	        	
 	            resultSet = statement.executeQuery();
@@ -704,13 +703,24 @@ public class Ban implements IModule, Listener {
 	          DataSourceHandler.close(statement, resultSet);
 	        }
 
-	        if ((isBanPlayer) || (isBan(ev.getConnection().getAddress().getAddress().getHostAddress(), GLOBAL_SERVER))) {
-	          BaseComponent[] bM = getBanMessage(ev.getConnection(), GLOBAL_SERVER);
-	          ev.setCancelReason(TextComponent.toLegacyText(bM));
-	          ev.setCancelled(true);
-	        }
+              if ((isBanPlayer) || (isBan(ev.getConnection().getAddress().getAddress().getHostAddress(), GLOBAL_SERVER))) {
+                  if (banServer != null) {
+                      pendingPlayers.add(uuid);
+                  }
+                  BaseComponent[] bM = getBanMessage(ev.getConnection(), GLOBAL_SERVER);
+                  ev.setCancelReason(TextComponent.toLegacyText(bM));
+                  ev.setCancelled(true);
+              }
 	        ev.completeIntent(BAT.getInstance());
 	      }
 	    });
 	}
+
+    @EventHandler
+    public void onPlayerPostLogin(PostLoginEvent ev) {
+        String uuid = Utils.getUUID(ev.getPlayer());
+        if (pendingPlayers.contains(uuid)) {
+            ev.getPlayer().connect(banServer);
+        }
+    }
 }

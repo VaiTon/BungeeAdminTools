@@ -1,5 +1,14 @@
 package fr.Alphart.BAT.Utils;
 
+import com.google.common.base.Charsets;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.PendingConnection;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,14 +19,6 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-
-import com.google.common.base.Charsets;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 
 import fr.Alphart.BAT.BAT;
 
@@ -228,5 +229,27 @@ public class Utils {
     public static String getOfflineUUID(String pName){
       return java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName.toLowerCase()) //Dsiable case sensitivity
           .getBytes(Charsets.UTF_8)).toString().replaceAll( "-", "" );
+    }
+
+    public static String getUUID(final PendingConnection conn) {
+        // If this is an online mode server, the uuid will be already set
+        if (conn.getUniqueId() != null && ProxyServer.getInstance().getConfig().isOnlineMode()) {
+            return conn.getUniqueId().toString().replaceAll("-", "");
+        }
+        // Otherwise it's an offline mode server, so we're gonna generate the UUID using player name (hashing)
+        else {
+            return Utils.getOfflineUUID(conn.getName());
+        }
+    }
+
+    public static String getUUID(final ProxiedPlayer pl) {
+        // If this is an online mode server, the uuid will be already set
+        if (pl.getUniqueId() != null && ProxyServer.getInstance().getConfig().isOnlineMode()) {
+            return pl.getUniqueId().toString().replaceAll("-", "");
+        }
+        // Otherwise it's an offline mode server, so we're gonna generate the UUID using player name (hashing)
+        else {
+            return Utils.getOfflineUUID(pl.getName());
+        }
     }
 }
